@@ -540,12 +540,12 @@
     </div>
 
     <!-- ── GALERIA DE MEMÓRIAS ────────────────────────────────── -->
-    <section class="gallery-section fade-in-section" id="galeria" aria-labelledby="gallery-title">
+    <section class="gallery-section fade-in-section" id="secao-galeria" aria-labelledby="gallery-title">
       <div class="section-header">
         <span class="section-tag">Galeria</span>
         <h2 id="gallery-title" class="section-title">Memórias</h2>
       </div>
-      <div id="gallery-grid" class="gallery-grid" role="list" aria-label="Galeria de fotos"></div>
+      <div id="galeria-container" class="gallery-grid" role="list" aria-label="Galeria de fotos"></div>
     </section>
 
     <!-- Divisor -->
@@ -730,14 +730,30 @@
         }
       }
 
-      // Galeria (campo opcional — JSONB array de {url, legenda})
+      // Galeria (campo opcional — pode ser array de strings ou array de {url, legenda})
       let galeria = [];
       if (row.galeria_urls) {
+        console.log('[Recordare] galeria_urls recebido:', typeof row.galeria_urls, row.galeria_urls);
+        let rawGaleria = [];
         if (Array.isArray(row.galeria_urls)) {
-          galeria = row.galeria_urls;
+          rawGaleria = row.galeria_urls;
         } else if (typeof row.galeria_urls === 'string') {
-          try { galeria = JSON.parse(row.galeria_urls); } catch(e) { galeria = []; }
+          try { rawGaleria = JSON.parse(row.galeria_urls); } catch(e) { console.error('[Recordare] Erro ao parsear galeria_urls:', e); rawGaleria = []; }
         }
+
+        console.log('[Recordare] rawGaleria após normalização:', rawGaleria);
+
+        // Normaliza: converte strings simples para objetos {url, legenda}
+        galeria = rawGaleria.map((item, i) => {
+          if (typeof item === 'string') {
+            return { url: item, legenda: `Foto ${i + 1}` };
+          }
+          return { url: item.url || '', legenda: item.legenda || `Foto ${i + 1}` };
+        }).filter(item => item.url);
+
+        console.log('[Recordare] galeria final mapeada:', galeria);
+      } else {
+        console.warn('[Recordare] Campo galeria_urls está ausente ou vazio no registro.');
       }
 
       return {
@@ -809,20 +825,32 @@
     }
 
     function renderGallery(d) {
-      const grid = document.getElementById('gallery-grid');
-      const section = document.getElementById('galeria');
+      const grid = document.getElementById('galeria-container');
+      const section = document.getElementById('secao-galeria');
       const divider = document.getElementById('divider-galeria');
-      if (!grid) return;
+
+      if (!grid) {
+        console.error('[Recordare] Elemento #galeria-container não encontrado no DOM.');
+        return;
+      }
+
+      // Limpa qualquer conteúdo prévio (incluindo <img> fixas remanescentes)
       grid.innerHTML = '';
 
+      // Se não houver fotos, oculta a seção inteira
       if (!d.galeria || d.galeria.length === 0) {
+        console.info('[Recordare] Nenhuma foto na galeria. Ocultando seção.');
         if (section) section.style.display = 'none';
         if (divider) divider.style.display = 'none';
         return;
       }
 
+      console.info(`[Recordare] Renderizando galeria com ${d.galeria.length} foto(s).`);
+
+      // Armazena as imagens no estado do lightbox
       lightboxState.images = d.galeria;
 
+      // Cria dinamicamente cada item da galeria
       d.galeria.forEach((foto, i) => {
         const item = document.createElement('li');
         item.className = 'gallery-item';
@@ -835,9 +863,16 @@
         img.alt = foto.legenda || `Foto ${i + 1}`;
         img.loading = 'lazy';
 
+        // Tratamento de erro de carregamento da imagem
+        img.onerror = function() {
+          console.warn(`[Recordare] Falha ao carregar imagem ${i + 1}: ${foto.url}`);
+          this.style.opacity = '0.3';
+        };
+
         item.appendChild(img);
         grid.appendChild(item);
 
+        // Eventos de clique e teclado para abrir o lightbox
         item.addEventListener('click', () => openLightbox(i));
         item.addEventListener('keydown', e => {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); }
