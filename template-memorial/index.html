@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- ============================================================
+       RECORDARE — Memorial Digital Póstumo
+       Versão Final Unificada (SPA)
+       Acesso via Tag NFC → Chaveiro de Acrílico
+  ============================================================ -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#F8F5F0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <title id="page-title">Memorial — Recordare</title>
+  <meta name="description" id="page-description" content="Uma homenagem eternizada por Recordare." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- ============================================================
+       CSS EMBUTIDO — Design System Completo
+  ============================================================ -->
+  <style>
+    /* ── DESIGN TOKENS ──────────────────────────────────────── */
+    :root {
+      --color-bg:             #F8F5F0;
+      --color-bg-card:        #FDFCFB;
+      --color-surface:        #F0EDE8;
+      --color-text-primary:   #2C2C2C;
+      --color-text-secondary: #6B6760;
+      --color-text-muted:     #9E9A95;
+      --color-gold:           #C9A96E;
+      --color-gold-light:     #DEC08A;
+      --color-gold-subtle:    #E8D5B0;
+      --color-border:         #E2DDD7;
+      --shadow-soft:          0 4px 24px rgba(44, 44, 44, 0.06);
+      --shadow-medium:        0 8px 40px rgba(44, 44, 44, 0.10);
+      --shadow-gold:          0 4px 20px rgba(201, 169, 110, 0.20);
+      --font-display:         'Cormorant Garamond', Georgia, serif;
+      --font-body:            'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --spacing-xs:  0.5rem;
+      --spacing-sm:  1rem;
+      --spacing-md:  1.5rem;
+      --spacing-lg:  2.5rem;
+      --spacing-xl:  4rem;
+      --radius-sm:   8px;
+      --radius-md:   16px;
+      --radius-lg:   24px;
+      --radius-full: 9999px;
+      --transition-fast:   0.2s ease;
+      --transition-normal: 0.4s ease;
+      --transition-slow:   0.8s ease;
+    }
+
+    /* ── RESET ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-text-primary);
+      background-color: var(--color-bg);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a   { text-decoration: none; color: inherit; }
+    button { font-family: var(--font-body); cursor: pointer; border: none; background: none; }
+
+    /* ── LOADING SCREEN ─────────────────────────────────────── */
+    .loading-screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background-color: var(--color-bg);
+      z-index: 9999; gap: 1.5rem;
+      transition: opacity var(--transition-slow), visibility var(--transition-slow);
+    }
+    .loading-screen.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .loading-lotus { width: 60px; height: 60px; animation: pulse-lotus 2s ease-in-out infinite; }
+    .loading-lotus svg { width: 100%; height: 100%; }
+
+    @keyframes pulse-lotus {
+      0%, 100% { opacity: 0.5; transform: scale(0.95); }
+      50%       { opacity: 1;   transform: scale(1.05); }
+    }
+
+    .loading-text {
+      font-family: var(--font-body); font-size: 0.8rem; font-weight: 300;
+      letter-spacing: 0.12em; text-transform: lowercase; color: var(--color-text-muted);
+    }
+
+    /* ── NOT FOUND SCREEN ───────────────────────────────────── */
+    .not-found-screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background-color: var(--color-bg);
+      z-index: 9000; padding: var(--spacing-lg); text-align: center;
+    }
+    .not-found-content {
+      max-width: 400px; display: flex; flex-direction: column;
+      align-items: center; gap: var(--spacing-sm);
+      animation: page-fadein 0.8s ease forwards;
+    }
+    .not-found-icon { width: 48px; height: 48px; color: var(--color-gold); margin-bottom: var(--spacing-xs); opacity: 0.8; }
+    .not-found-title { font-family: var(--font-display); font-size: 2rem; color: var(--color-text-primary); line-height: 1.2; }
+    .not-found-text { color: var(--color-text-secondary); font-size: 0.95rem; line-height: 1.6; }
+
+    /* ── PÁGINA MEMORIAL ────────────────────────────────────── */
+    .memorial-page {
+      max-width: 480px; margin: 0 auto;
+      padding-bottom: var(--spacing-xl);
+      opacity: 0; animation: page-fadein 1.2s ease forwards; animation-delay: 0.3s;
+    }
+
+    @keyframes page-fadein {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+
+    /* ── FADE-IN SECTIONS ───────────────────────────────────── */
+    .fade-in-section {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in-section.is-visible { opacity: 1; transform: translateY(0); }
+
+    /* ── HERO SECTION ───────────────────────────────────────── */
+    .hero-section {
+      display: flex; flex-direction: column; align-items: center;
+      padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
+      text-align: center; position: relative;
+    }
+
+    .hero-ornament {
+      display: flex; align-items: center; gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg); width: 100%; justify-content: center;
+    }
+    .ornament-line {
+      flex: 1; height: 1px; max-width: 80px;
+      background: linear-gradient(to right, transparent, var(--color-gold-subtle), var(--color-gold));
+    }
+    .ornament-line:last-child {
+      background: linear-gradient(to left, transparent, var(--color-gold-subtle), var(--color-gold));
+    }
+    .ornament-icon { width: 28px; height: 28px; flex-shrink: 0; }
+
+    /* Foto de perfil */
+    .profile-frame { position: relative; width: 160px; height: 160px; margin-bottom: var(--spacing-lg); }
+
+    .profile-ring {
+      position: absolute; inset: -6px; border-radius: 50%;
+      border: 1px solid var(--color-gold); opacity: 0.6;
+      animation: ring-breathe 4s ease-in-out infinite;
+    }
+    @keyframes ring-breathe {
+      0%, 100% { transform: scale(1);    opacity: 0.6; }
+      50%       { transform: scale(1.03); opacity: 0.9; }
+    }
+
+    .profile-photo {
+      width: 160px; height: 160px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--color-bg-card);
+      box-shadow: var(--shadow-medium), var(--shadow-gold);
+      position: relative; z-index: 1;
+    }
+    .profile-glow {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,169,110,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Hero Info */
+    .hero-info { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-sm); }
+
+    .hero-name {
+      font-family: var(--font-display); font-size: clamp(1.9rem, 8vw, 2.5rem);
+      font-weight: 400; color: var(--color-text-primary); letter-spacing: 0.02em; line-height: 1.2;
+    }
+    .hero-nickname {
+      font-family: var(--font-display); font-style: italic; font-size: 1.1rem;
+      font-weight: 300; color: var(--color-gold); margin-top: -0.5rem; letter-spacing: 0.05em;
+    }
+
+    /* Datas */
+    .hero-dates {
+      display: flex; align-items: center; gap: var(--spacing-md);
+      margin-top: var(--spacing-xs); flex-wrap: wrap; justify-content: center;
+    }
+    .date-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+    .date-label {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--color-text-muted);
+    }
+    .date-value {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 300;
+      color: var(--color-text-secondary);
+    }
+    .date-separator { font-size: 0.5rem; color: var(--color-gold); opacity: 0.7; }
+
+    /* Epitáfio */
+    .hero-epitaph {
+      margin-top: var(--spacing-md); padding: var(--spacing-md);
+      border-left: 2px solid var(--color-gold);
+      background: linear-gradient(135deg, rgba(201,169,110,0.04), transparent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      position: relative; text-align: left; max-width: 100%;
+    }
+    .epitaph-quote-mark {
+      font-family: var(--font-display); font-size: 2.5rem; color: var(--color-gold);
+      opacity: 0.4; line-height: 0; vertical-align: -0.4em; font-weight: 300;
+    }
+    .epitaph-quote-close { vertical-align: -0.6em; }
+    #hero-epitaph-text {
+      font-family: var(--font-display); font-size: 1.15rem; font-style: italic;
+      font-weight: 300; color: var(--color-text-primary); line-height: 1.8;
+    }
+
+    /* ── DIVISORES ──────────────────────────────────────────── */
+    .section-divider {
+      display: flex; align-items: center; gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--color-border); }
+    .divider-line.short { max-width: 40px; }
+    .divider-diamond { font-size: 0.5rem; color: var(--color-gold); opacity: 0.6; }
+    .divider-diamond.small { font-size: 0.35rem; }
+
+    /* ── SECTION HEADERS ────────────────────────────────────── */
+    .section-header {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.3rem; margin-bottom: var(--spacing-md);
+    }
+    .section-tag {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--color-gold);
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 400;
+      color: var(--color-text-primary); letter-spacing: 0.02em;
+    }
+
+    /* ── BIOGRAFIA ──────────────────────────────────────────── */
+    .bio-section {
+      padding: var(--spacing-lg) var(--spacing-md);
+      background: var(--color-bg-card); border-radius: var(--radius-md);
+      margin: 0 var(--spacing-sm); box-shadow: var(--shadow-soft);
+    }
+    .bio-text {
+      font-family: var(--font-body); font-size: 0.95rem; font-weight: 300;
+      color: var(--color-text-secondary); line-height: 1.9;
+      text-align: justify; hyphens: auto;
+    }
+    .bio-text p + p { margin-top: var(--spacing-sm); }
+
+    /* ── GALERIA ────────────────────────────────────────────── */
+    .gallery-section { padding: var(--spacing-lg) var(--spacing-sm); }
+
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+    .gallery-item {
+      position: relative; aspect-ratio: 1 / 1; overflow: hidden;
+      border-radius: var(--radius-sm); cursor: pointer;
+      background: var(--color-surface); list-style: none;
+    }
+    .gallery-item img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease, filter 0.3s ease;
+    }
+    .gallery-item::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(44, 44, 44, 0);
+      transition: background var(--transition-normal); pointer-events: none;
+    }
+    .gallery-item:active::after { background: rgba(44, 44, 44, 0.12); }
+    .gallery-item:active img { transform: scale(1.03); }
+    .gallery-item:focus { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+    /* ── SEÇÃO MÍDIA ────────────────────────────────────────── */
+    .media-section {
+      padding: var(--spacing-lg) var(--spacing-md);
+      background: var(--color-bg-card); border-radius: var(--radius-md);
+      margin: 0 var(--spacing-sm); box-shadow: var(--shadow-soft);
+      display: flex; flex-direction: column; gap: var(--spacing-lg);
+    }
+    .media-label {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--color-text-muted);
+      margin-bottom: var(--spacing-xs); text-align: center;
+    }
+
+    /* Botão de mídia genérico */
+    .media-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.75rem; padding: 0.875rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-body); font-size: 0.85rem;
+      font-weight: 500; letter-spacing: 0.05em;
+      background: var(--color-text-primary); color: var(--color-bg);
+      box-shadow: 0 4px 16px rgba(44, 44, 44, 0.18);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+      min-height: 52px; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .media-btn:active { transform: scale(0.97); opacity: 0.85; }
+    .media-btn-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    .memorial-footer {
+      margin-top: var(--spacing-xl); padding: var(--spacing-lg) var(--spacing-md);
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--spacing-sm); text-align: center;
+    }
+    .footer-ornament {
+      display: flex; align-items: center; gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs); width: 100%; max-width: 200px;
+    }
+    .footer-logo-link {
+      display: inline-block; transition: opacity var(--transition-fast);
+    }
+    .footer-logo-link:active { opacity: 0.7; }
+    .footer-logo {
+      width: 120px; height: auto; opacity: 0.55;
+      transition: opacity var(--transition-fast); filter: grayscale(20%);
+    }
+    .footer-logo-link:hover .footer-logo,
+    .footer-logo-link:focus .footer-logo { opacity: 0.75; }
+    .footer-brand-text {
+      font-family: var(--font-display); font-size: 1.5rem;
+      color: var(--color-text-muted); font-style: italic;
+    }
+    .footer-tagline {
+      font-size: 0.75rem; color: var(--color-text-muted);
+      font-weight: 300; letter-spacing: 0.05em; line-height: 1.5;
+    }
+    .footer-tagline strong { font-weight: 500; color: var(--color-text-secondary); }
+
+    /* ── LIGHTBOX ───────────────────────────────────────────── */
+    .lightbox-overlay {
+      position: fixed; inset: 0; background: rgba(10, 10, 10, 0.96);
+      z-index: 10000; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: var(--spacing-sm); animation: lightbox-in 0.3s ease;
+    }
+    @keyframes lightbox-in { from { opacity: 0; } to { opacity: 1; } }
+
+    .lightbox-close {
+      position: absolute; top: 1rem; right: 1rem; color: rgba(255,255,255,0.6);
+      font-size: 1.4rem; padding: 0.5rem; line-height: 1;
+      min-width: 44px; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast), background var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lightbox-close:active, .lightbox-close:focus {
+      color: #fff; background: rgba(255,255,255,0.1); outline: none;
+    }
+    .lightbox-content {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; max-width: 440px; gap: var(--spacing-xs); position: relative;
+    }
+    .lightbox-img {
+      max-width: calc(100% - 80px); max-height: 75vh; object-fit: contain;
+      border-radius: var(--radius-sm); box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      animation: img-fadein 0.4s ease;
+    }
+    @keyframes img-fadein {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1);    }
+    }
+    .lightbox-nav {
+      color: rgba(255,255,255,0.5); font-size: 2rem;
+      padding: 0.5rem 0.75rem; min-width: 44px; min-height: 60px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast), background var(--transition-fast);
+      flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+    }
+    .lightbox-nav:active, .lightbox-nav:focus {
+      color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); outline: none;
+    }
+    .lightbox-caption {
+      position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 300;
+      letter-spacing: 0.1em; text-align: center; max-width: 90%;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── ACESSIBILIDADE & RESPONSIVIDADE ────────────────────── */
+    :focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .hero-name { font-size: 1.7rem; }
+      .profile-frame { width: 140px; height: 140px; }
+      .profile-photo { width: 140px; height: 140px; }
+    }
+
+    @media (min-width: 600px) {
+      body { background: var(--color-surface); }
+      .memorial-page {
+        background: var(--color-bg); border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-medium); margin: var(--spacing-lg) auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       LOADING SCREEN
+  ============================================================ -->
+  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+    <div class="loading-lotus">
+      <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M30 50C30 50 10 38 10 22C10 14 18 8 30 8C42 8 50 14 50 22C50 38 30 50 30 50Z"
+          stroke="#C9A96E" stroke-width="1" fill="none" opacity="0.6" />
+        <path d="M30 50C30 50 20 35 20 22C20 16 24 10 30 10C36 10 40 16 40 22C40 35 30 50 30 50Z"
+          stroke="#C9A96E" stroke-width="1" fill="none" opacity="0.8" />
+        <circle cx="30" cy="50" r="1.5" fill="#C9A96E" />
+      </svg>
+    </div>
+    <p class="loading-text">carregando memórias...</p>
+  </div>
+
+  <!-- ============================================================
+       NOT FOUND SCREEN
+  ============================================================ -->
+  <div id="not-found-screen" class="not-found-screen" style="display: none;">
+    <div class="not-found-content">
+      <svg class="not-found-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15 9L9 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 9L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2 class="not-found-title">Memorial não encontrado</h2>
+      <p class="not-found-text">A página que você está procurando não existe ou não está mais disponível.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PÁGINA PRINCIPAL — Populada dinamicamente via JS
+  ============================================================ -->
+  <div id="memorial-page" class="memorial-page" style="display: none;">
+
+    <!-- ── HERO SECTION ──────────────────────────────────────── -->
+    <section class="hero-section" id="hero" aria-labelledby="hero-name">
+
+      <!-- Ornamento decorativo topo -->
+      <div class="hero-ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <svg class="ornament-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C12 2 4 7 4 13C4 17.4 7.6 21 12 21C16.4 21 20 17.4 20 13C20 7 12 2 12 2Z"
+            stroke="#C9A96E" stroke-width="0.8" fill="none" />
+          <path d="M12 21V24" stroke="#C9A96E" stroke-width="0.8" />
+          <path d="M8 21.5C8 21.5 6 22.5 6 24" stroke="#C9A96E" stroke-width="0.8" />
+          <path d="M16 21.5C16 21.5 18 22.5 18 24" stroke="#C9A96E" stroke-width="0.8" />
+        </svg>
+        <span class="ornament-line"></span>
+      </div>
+
+      <!-- Foto de perfil circular -->
+      <div class="profile-frame">
+        <div class="profile-ring"></div>
+        <img
+          id="hero-photo"
+          class="profile-photo"
+          src=""
+          alt="Foto do homenageado"
+        />
+        <div class="profile-glow" aria-hidden="true"></div>
+      </div>
+
+      <!-- Dados do homenageado -->
+      <div class="hero-info">
+        <h1 id="hero-name" class="hero-name"></h1>
+
+        <div class="hero-dates" aria-label="Datas">
+          <span class="date-item">
+            <span class="date-label">Nascimento</span>
+            <span class="date-value" id="hero-birth-value"></span>
+          </span>
+          <span class="date-separator" aria-hidden="true">✦</span>
+          <span class="date-item">
+            <span class="date-label">Falecimento</span>
+            <span class="date-value" id="hero-death-value"></span>
+          </span>
+        </div>
+
+        <!-- Frase de epitáfio -->
+        <blockquote id="hero-epitaph" class="hero-epitaph" aria-label="Epitáfio">
+          <span class="epitaph-quote-mark" aria-hidden="true">"</span>
+          <span id="hero-epitaph-text"></span>
+          <span class="epitaph-quote-mark epitaph-quote-close" aria-hidden="true">"</span>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- Divisor -->
+    <div class="section-divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-diamond">◆</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- ── BIOGRAFIA ─────────────────────────────────────────── -->
+    <section class="bio-section fade-in-section" id="bio" aria-labelledby="bio-title">
+      <div class="section-header">
+        <span class="section-tag">Sobre</span>
+        <h2 id="bio-title" class="section-title">Sua História</h2>
+      </div>
+      <div id="bio-text" class="bio-text" role="article"></div>
+    </section>
+
+    <!-- Divisor -->
+    <div id="divider-galeria" class="section-divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-diamond">◆</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- ── GALERIA DE MEMÓRIAS ────────────────────────────────── -->
+    <section class="gallery-section fade-in-section" id="secao-galeria" aria-labelledby="gallery-title">
+      <div class="section-header">
+        <span class="section-tag">Galeria</span>
+        <h2 id="gallery-title" class="section-title">Memórias</h2>
+      </div>
+      <div id="galeria-container" class="gallery-grid" role="list" aria-label="Galeria de fotos"></div>
+    </section>
+
+    <!-- Divisor -->
+    <div id="divider-midia" class="section-divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-diamond">◆</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- ── SEÇÃO DE MÍDIA ────────────────────────────────────── -->
+    <section class="media-section fade-in-section" id="midia" aria-labelledby="media-title">
+      <div class="section-header">
+        <span class="section-tag">Mídia</span>
+        <h2 id="media-title" class="section-title">Lembranças</h2>
+      </div>
+      <div id="media-btn-container" style="display: none;">
+        <p class="media-label">Conteúdo em Memória</p>
+        <a
+          id="media-link"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="media-btn"
+          aria-label="Abrir mídia"
+        >
+          <!-- Ícone Play SVG -->
+          <svg class="media-btn-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          Abrir Mídia
+        </a>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ────────────────────────────────────────────── -->
+    <footer class="memorial-footer" role="contentinfo">
+      <div class="footer-ornament" aria-hidden="true">
+        <span class="divider-line short"></span>
+        <span class="divider-diamond small">◆</span>
+        <span class="divider-line short"></span>
+      </div>
+      <a href="https://recordare.com.br" target="_blank" rel="noopener noreferrer" class="footer-logo-link" aria-label="Recordare">
+        <img
+          src="../logos/logo Recordare.png"
+          alt="Logo Recordare"
+          class="footer-logo"
+          onerror="this.style.display='none'; document.getElementById('footer-text-fallback').style.display='block';"
+        />
+        <span id="footer-text-fallback" style="display:none;" class="footer-brand-text">Recordare</span>
+      </a>
+      <p class="footer-tagline">Uma homenagem eternizada por <strong>Recordare</strong></p>
+    </footer>
+
+  </div><!-- /memorial-page -->
+
+  <!-- ============================================================
+       LIGHTBOX — Visualizador de fotos em tela cheia
+  ============================================================ -->
+  <div id="lightbox-overlay" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Visualizador de foto" style="display: none;">
+    <button id="lightbox-close" class="lightbox-close" aria-label="Fechar">✕</button>
+    <div class="lightbox-content">
+      <button id="lightbox-prev" class="lightbox-nav lightbox-prev" aria-label="Anterior">‹</button>
+      <img id="lightbox-img" class="lightbox-img" src="" alt="" />
+      <button id="lightbox-next" class="lightbox-nav lightbox-next" aria-label="Próxima">›</button>
+    </div>
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+  </div>
+
+
+  <!-- ============================================================
+       SUPABASE SDK via CDN
+  ============================================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <!-- ============================================================
+       JAVASCRIPT — Lógica Completa Embutida
+  ============================================================ -->
+  <script>
+    'use strict';
+
+    /* ══════════════════════════════════════════════════════════
+       CONFIGURAÇÃO DO SUPABASE
+       ══════════════════════════════════════════════════════════ */
+    const SUPABASE_URL      = 'https://lrxjrfbycfhqqhsuyylf.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_9TXHHsMfIYpz2wByAoDODg_5KQLaM6l';
+
+    // Inicializa o cliente Supabase
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+    /* ══════════════════════════════════════════════════════════
+       ESTADO DO LIGHTBOX
+       ══════════════════════════════════════════════════════════ */
+    const lightboxState = { currentIndex: 0, images: [] };
+
+
+    /* ══════════════════════════════════════════════════════════
+       1. EXTRAÇÃO DO ID DA URL
+       Aceita:  ?id=joao-silva  ou  /homenagem/joao-silva
+       ══════════════════════════════════════════════════════════ */
+    function extractMemorialId() {
+      // Formato 1: ?id=slug
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get('id');
+      if (queryId && queryId.trim() !== '') return queryId.trim();
+
+      // Formato 2: /homenagem/slug
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const idx = pathParts.indexOf('homenagem');
+      if (idx !== -1 && pathParts[idx + 1]) return pathParts[idx + 1].trim();
+
+      return null;
+    }
+
+
+    /* ══════════════════════════════════════════════════════════
+       2. BUSCA NO SUPABASE
+       Tabela: memoriais
+       Colunas: id, nome_completo, datas, frase, biografia,
+                foto_perfil_url, midia_url, galeria_urls (opcional)
+       ══════════════════════════════════════════════════════════ */
+    async function fetchMemorial(slug) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('memoriais')
+          .select('*')
+          .eq('id', slug)
+          .single();
+
+        if (error) {
+          console.error('[Recordare] Erro Supabase:', error.message);
+          return null;
+        }
+
+        return data || null;
+
+      } catch (err) {
+        console.error('[Recordare] Exceção ao acessar Supabase:', err);
+        return null;
+      }
+    }
+
+
+    /**
+     * Mapeia os campos do banco de dados para o formato interno.
+     * Colunas da tabela: id, nome_completo, datas, frase,
+     * biografia, foto_perfil_url, midia_url, galeria_urls (opcional)
+     *
+     * O campo 'datas' pode ser:
+     *  - String simples: "12/03/1948 – 07/09/2024"
+     *  - Objeto JSON: { nascimento: "...", falecimento: "..." }
+     */
+    function mapData(row) {
+      // Processamento do campo 'datas'
+      let nascimento = '';
+      let falecimento = '';
+
+      if (row.datas) {
+        if (typeof row.datas === 'object' && row.datas !== null) {
+          // Formato JSON: { nascimento, falecimento }
+          nascimento  = row.datas.nascimento  || row.datas.data_nascimento  || '';
+          falecimento = row.datas.falecimento || row.datas.data_falecimento || '';
+        } else if (typeof row.datas === 'string') {
+          // Formato texto: "12/03/1948 – 07/09/2024"
+          const partes = row.datas.split(/\s*[–—-]\s*/);
+          nascimento  = partes[0] ? partes[0].trim() : '';
+          falecimento = partes[1] ? partes[1].trim() : '';
+        }
+      }
+
+      // Processamento da biografia (pode ser string, array de strings, ou array PG)
+      let bio = [];
+      if (row.biografia) {
+        if (Array.isArray(row.biografia)) {
+          bio = row.biografia;
+        } else if (typeof row.biografia === 'string') {
+          // Pode ser um array PostgreSQL "{item1,item2}" ou texto simples
+          bio = row.biografia.startsWith('{')
+            ? row.biografia.slice(1, -1).split('","').map(s => s.replace(/^"|"$/g, ''))
+            : row.biografia.split('\n\n').filter(p => p.trim());
+        }
+      }
+
+      // Galeria (campo opcional — pode ser array de strings ou array de {url, legenda})
+      let galeria = [];
+      if (row.galeria_urls) {
+        console.log('[Recordare] galeria_urls recebido:', typeof row.galeria_urls, row.galeria_urls);
+        let rawGaleria = [];
+        if (Array.isArray(row.galeria_urls)) {
+          rawGaleria = row.galeria_urls;
+        } else if (typeof row.galeria_urls === 'string') {
+          try { rawGaleria = JSON.parse(row.galeria_urls); } catch(e) { console.error('[Recordare] Erro ao parsear galeria_urls:', e); rawGaleria = []; }
+        }
+
+        console.log('[Recordare] rawGaleria após normalização:', rawGaleria);
+
+        // Normaliza: converte strings simples para objetos {url, legenda}
+        galeria = rawGaleria.map((item, i) => {
+          if (typeof item === 'string') {
+            return { url: item, legenda: `Foto ${i + 1}` };
+          }
+          return { url: item.url || '', legenda: item.legenda || `Foto ${i + 1}` };
+        }).filter(item => item.url);
+
+        console.log('[Recordare] galeria final mapeada:', galeria);
+      } else {
+        console.warn('[Recordare] Campo galeria_urls está ausente ou vazio no registro.');
+      }
+
+      return {
+        id:          row.id              || '',
+        nome:        row.nome_completo   || '',
+        nascimento,
+        falecimento,
+        epitafio:    row.frase           || '',
+        foto:        row.foto_perfil_url || '',
+        bio,
+        galeria,
+        midia:       row.midia_url       || ''
+      };
+    }
+
+
+    /* ══════════════════════════════════════════════════════════
+       3. FUNÇÕES DE RENDER
+       ══════════════════════════════════════════════════════════ */
+
+    function renderMeta(d) {
+      const t = `Em Memória de ${d.nome} | Recordare`;
+      document.title = t;
+      const titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.textContent = t;
+      const descEl = document.getElementById('page-description');
+      if (descEl) {
+        descEl.setAttribute('content',
+          `Homenagem a ${d.nome} (${d.nascimento} – ${d.falecimento}). ${(d.epitafio || '').substring(0, 120)}...`
+        );
+      }
+    }
+
+    function renderHero(d) {
+      const photoEl = document.getElementById('hero-photo');
+      if (photoEl) { photoEl.src = d.foto; photoEl.alt = `Foto de ${d.nome}`; }
+
+      const nameEl = document.getElementById('hero-name');
+      if (nameEl) nameEl.textContent = d.nome;
+
+      const birthEl = document.getElementById('hero-birth-value');
+      if (birthEl) birthEl.textContent = d.nascimento;
+
+      const deathEl = document.getElementById('hero-death-value');
+      if (deathEl) deathEl.textContent = d.falecimento;
+
+      const epitaphEl = document.getElementById('hero-epitaph-text');
+      if (epitaphEl) epitaphEl.textContent = d.epitafio;
+    }
+
+    function renderBio(d) {
+      const container = document.getElementById('bio-text');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const paragraphs = Array.isArray(d.bio) ? d.bio : [d.bio];
+      paragraphs.forEach(text => {
+        if (text && text.trim()) {
+          const p = document.createElement('p');
+          p.textContent = text;
+          container.appendChild(p);
+        }
+      });
+
+      // Se bio vazia, oculta a seção
+      if (paragraphs.filter(p => p && p.trim()).length === 0) {
+        document.getElementById('bio').style.display = 'none';
+      }
+    }
+
+    function renderGallery(d) {
+      const grid = document.getElementById('galeria-container');
+      const section = document.getElementById('secao-galeria');
+      const divider = document.getElementById('divider-galeria');
+
+      if (!grid) {
+        console.error('[Recordare] Elemento #galeria-container não encontrado no DOM.');
+        return;
+      }
+
+      // Limpa qualquer conteúdo prévio (incluindo <img> fixas remanescentes)
+      grid.innerHTML = '';
+
+      // Se não houver fotos, oculta a seção inteira
+      if (!d.galeria || d.galeria.length === 0) {
+        console.info('[Recordare] Nenhuma foto na galeria. Ocultando seção.');
+        if (section) section.style.display = 'none';
+        if (divider) divider.style.display = 'none';
+        return;
+      }
+
+      console.info(`[Recordare] Renderizando galeria com ${d.galeria.length} foto(s).`);
+
+      // Armazena as imagens no estado do lightbox
+      lightboxState.images = d.galeria;
+
+      // Cria dinamicamente cada item da galeria
+      d.galeria.forEach((foto, i) => {
+        const item = document.createElement('li');
+        item.className = 'gallery-item';
+        item.setAttribute('role', 'listitem');
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('aria-label', `Foto ${i + 1}: ${foto.legenda || ''}`);
+
+        const img = document.createElement('img');
+        img.src = foto.url;
+        img.alt = foto.legenda || `Foto ${i + 1}`;
+        img.loading = 'lazy';
+
+        // Tratamento de erro de carregamento da imagem
+        img.onerror = function() {
+          console.warn(`[Recordare] Falha ao carregar imagem ${i + 1}: ${foto.url}`);
+          this.style.opacity = '0.3';
+        };
+
+        item.appendChild(img);
+        grid.appendChild(item);
+
+        // Eventos de clique e teclado para abrir o lightbox
+        item.addEventListener('click', () => openLightbox(i));
+        item.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); }
+        });
+      });
+    }
+
+    function renderMedia(d) {
+      const section = document.getElementById('midia');
+      const divider = document.getElementById('divider-midia');
+      const container = document.getElementById('media-btn-container');
+      const link = document.getElementById('media-link');
+
+      if (!d.midia || !d.midia.trim()) {
+        if (section) section.style.display = 'none';
+        if (divider) divider.style.display = 'none';
+        return;
+      }
+
+      if (container) container.style.display = 'block';
+      if (link) link.href = d.midia;
+    }
+
+
+    /* ══════════════════════════════════════════════════════════
+       4. LIGHTBOX
+       ══════════════════════════════════════════════════════════ */
+    function initLightbox() {
+      const overlay  = document.getElementById('lightbox-overlay');
+      const closeBtn = document.getElementById('lightbox-close');
+      const prevBtn  = document.getElementById('lightbox-prev');
+      const nextBtn  = document.getElementById('lightbox-next');
+      if (!overlay || !closeBtn || !prevBtn || !nextBtn) return;
+
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeLightbox(); });
+      closeBtn.addEventListener('click', closeLightbox);
+      prevBtn.addEventListener('click', () => navigateLightbox(-1));
+      nextBtn.addEventListener('click', () => navigateLightbox(1));
+
+      document.addEventListener('keydown', e => {
+        if (overlay.style.display === 'none') return;
+        if (e.key === 'ArrowLeft')  navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+        if (e.key === 'Escape')     closeLightbox();
+      });
+
+      // Swipe touch mobile
+      let touchStartX = 0;
+      overlay.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+      overlay.addEventListener('touchend', e => {
+        const delta = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(delta) > 50) navigateLightbox(delta > 0 ? -1 : 1);
+      });
+    }
+
+    function openLightbox(index) {
+      lightboxState.currentIndex = index;
+      updateLightboxImage();
+      const overlay = document.getElementById('lightbox-overlay');
+      if (overlay) overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      const closeBtn = document.getElementById('lightbox-close');
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeLightbox() {
+      const overlay = document.getElementById('lightbox-overlay');
+      if (overlay) overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function navigateLightbox(dir) {
+      const total = lightboxState.images.length;
+      if (total === 0) return;
+      lightboxState.currentIndex = (lightboxState.currentIndex + dir + total) % total;
+      updateLightboxImage();
+    }
+
+    function updateLightboxImage() {
+      const { images, currentIndex } = lightboxState;
+      const foto = images[currentIndex];
+      if (!foto) return;
+
+      const imgEl = document.getElementById('lightbox-img');
+      const captionEl = document.getElementById('lightbox-caption');
+
+      if (imgEl) {
+        imgEl.style.opacity = '0';
+        setTimeout(() => {
+          imgEl.src = foto.url;
+          imgEl.alt = foto.legenda || `Foto ${currentIndex + 1}`;
+          imgEl.style.opacity = '1';
+          imgEl.style.transition = 'opacity 0.3s ease';
+        }, 150);
+      }
+      if (captionEl) {
+        captionEl.textContent = foto.legenda
+          ? `${foto.legenda} · ${currentIndex + 1} / ${images.length}`
+          : `${currentIndex + 1} / ${images.length}`;
+      }
+
+      const showNav = images.length > 1;
+      const prevBtn = document.getElementById('lightbox-prev');
+      const nextBtn = document.getElementById('lightbox-next');
+      if (prevBtn) prevBtn.style.display = showNav ? 'flex' : 'none';
+      if (nextBtn) nextBtn.style.display = showNav ? 'flex' : 'none';
+    }
+
+
+    /* ══════════════════════════════════════════════════════════
+       5. FADE-IN — Intersection Observer
+       ══════════════════════════════════════════════════════════ */
+    function initFadeInSections() {
+      const sections = document.querySelectorAll('.fade-in-section');
+      if (sections.length === 0) return;
+
+      if (!('IntersectionObserver' in window)) {
+        sections.forEach(s => s.classList.add('is-visible'));
+        return;
+      }
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { root: null, rootMargin: '0px', threshold: 0.1 });
+
+      sections.forEach(s => observer.observe(s));
+    }
+
+
+    /* ══════════════════════════════════════════════════════════
+       6. CONTROLE DE TELAS
+       ══════════════════════════════════════════════════════════ */
+    function showPage() {
+      const loading = document.getElementById('loading-screen');
+      const page    = document.getElementById('memorial-page');
+      if (page) page.style.display = 'block';
+      if (loading) {
+        loading.classList.add('fade-out');
+        setTimeout(() => { loading.style.display = 'none'; }, 800);
+      }
+    }
+
+    function showNotFound() {
+      const loading  = document.getElementById('loading-screen');
+      const page     = document.getElementById('memorial-page');
+      const notFound = document.getElementById('not-found-screen');
+      if (page) page.style.display = 'none';
+      if (notFound) notFound.style.display = 'flex';
+      if (loading) {
+        loading.classList.add('fade-out');
+        setTimeout(() => { loading.style.display = 'none'; }, 800);
+      }
+    }
+
+
+    /* ══════════════════════════════════════════════════════════
+       7. INICIALIZAÇÃO — PONTO DE ENTRADA
+       ══════════════════════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initApp, 600);
+    });
+
+    async function initApp() {
+      try {
+        // 1. Extrai o ID da URL
+        const slug = extractMemorialId();
+
+        if (!slug) {
+          console.warn('[Recordare] Nenhum ID encontrado na URL.');
+          showNotFound();
+          return;
+        }
+
+        console.info(`[Recordare] Buscando memorial: "${slug}"`);
+
+        // 2. Busca no Supabase
+        const row = await fetchMemorial(slug);
+
+        if (!row) {
+          console.warn(`[Recordare] Memorial "${slug}" não encontrado no banco.`);
+          showNotFound();
+          return;
+        }
+
+        // 3. Mapeia os campos do banco para o formato do front-end
+        const data = mapData(row);
+
+        // 4. Popula a interface
+        renderMeta(data);
+        renderHero(data);
+        renderBio(data);
+        renderGallery(data);
+        renderMedia(data);
+
+        // 5. Inicializa interações
+        initLightbox();
+        initFadeInSections();
+
+        // 6. Exibe a página
+        showPage();
+
+      } catch (error) {
+        console.error('[Recordare] Erro crítico:', error);
+        showNotFound();
+      }
+    }
+  </script>
+
+</body>
+</html>

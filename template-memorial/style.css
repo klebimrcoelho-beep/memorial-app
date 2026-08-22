@@ -1,0 +1,857 @@
+/* ================================================================
+   RECORDARE — Memorial Template — style.css
+   Design System: Clean, Minimalista, Elegante, Mobile-First
+   Paleta: Off-White, Creme, Cinza Claro, Grafite, Dourado Suave
+================================================================ */
+
+/* ── 1. DESIGN TOKENS ──────────────────────────────────────── */
+:root {
+  /* Cores principais */
+  --color-bg:           #F8F5F0;   /* Off-white quente — fundo geral */
+  --color-bg-card:      #FDFCFB;   /* Quase branco — cards e seções */
+  --color-surface:      #F0EDE8;   /* Superfície levemente mais escura */
+
+  /* Tipografia */
+  --color-text-primary:   #2C2C2C; /* Grafite escuro */
+  --color-text-secondary: #6B6760; /* Grafite médio */
+  --color-text-muted:     #9E9A95; /* Cinza suave */
+
+  /* Acento dourado suave */
+  --color-gold:         #C9A96E;   /* Dourado principal */
+  --color-gold-light:   #DEC08A;   /* Dourado claro (hover) */
+  --color-gold-subtle:  #E8D5B0;   /* Dourado muito suave (bordas) */
+
+  /* Bordas e sombras */
+  --color-border:       #E2DDD7;   /* Borda neutra */
+  --shadow-soft:        0 4px 24px rgba(44, 44, 44, 0.06);
+  --shadow-medium:      0 8px 40px rgba(44, 44, 44, 0.10);
+  --shadow-gold:        0 4px 20px rgba(201, 169, 110, 0.20);
+
+  /* Tipografia — Famílias */
+  --font-display:  'Cormorant Garamond', Georgia, serif; /* Elegância, títulos */
+  --font-body:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Espaçamentos */
+  --spacing-xs:   0.5rem;
+  --spacing-sm:   1rem;
+  --spacing-md:   1.5rem;
+  --spacing-lg:   2.5rem;
+  --spacing-xl:   4rem;
+
+  /* Bordas arredondadas */
+  --radius-sm:   8px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-full: 9999px;
+
+  /* Transições */
+  --transition-fast:   0.2s ease;
+  --transition-normal: 0.4s ease;
+  --transition-slow:   0.8s ease;
+}
+
+
+/* ── 2. RESET & BASE ────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+
+/* ── 3. LOADING SCREEN ──────────────────────────────────────── */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+  z-index: 9999;
+  gap: 1.5rem;
+  transition: opacity var(--transition-slow), visibility var(--transition-slow);
+}
+
+.loading-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-lotus {
+  width: 60px;
+  height: 60px;
+  animation: pulse-lotus 2s ease-in-out infinite;
+}
+
+.loading-lotus svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes pulse-lotus {
+  0%, 100% { opacity: 0.5; transform: scale(0.95); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+
+.loading-text {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  color: var(--color-text-muted);
+}
+
+
+/* ── 4. TELA DE NÃO ENCONTRADO ──────────────────────────────── */
+.not-found-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+  z-index: 9000;
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.not-found-content {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  animation: page-fadein 0.8s ease forwards;
+}
+
+.not-found-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-gold);
+  margin-bottom: var(--spacing-xs);
+  opacity: 0.8;
+}
+
+.not-found-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.not-found-text {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+
+/* ── 5. PÁGINA MEMORIAL ─────────────────────────────────────── */
+.memorial-page {
+  max-width: 480px; /* Máximo mobile premium */
+  margin: 0 auto;
+  padding-bottom: var(--spacing-xl);
+  opacity: 0;
+  animation: page-fadein 1.2s ease forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes page-fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+
+/* ── 5. FADE-IN SECTIONS (Intersection Observer) ─────────────── */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ── 6. HERO SECTION ────────────────────────────────────────── */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+  position: relative;
+}
+
+/* Ornamento topo */
+.hero-ornament {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+  justify-content: center;
+}
+
+.ornament-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-gold-subtle),
+    var(--color-gold)
+  );
+  max-width: 80px;
+}
+
+.ornament-line:last-child {
+  background: linear-gradient(
+    to left,
+    transparent,
+    var(--color-gold-subtle),
+    var(--color-gold)
+  );
+}
+
+.ornament-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+/* Frame da foto de perfil */
+.profile-frame {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.profile-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--color-gold);
+  opacity: 0.6;
+  animation: ring-breathe 4s ease-in-out infinite;
+}
+
+@keyframes ring-breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.6; }
+  50%       { transform: scale(1.03); opacity: 0.9; }
+}
+
+.profile-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-bg-card);
+  box-shadow: var(--shadow-medium), var(--shadow-gold);
+  position: relative;
+  z-index: 1;
+}
+
+.profile-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+
+/* Hero Info */
+.hero-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 8vw, 2.5rem);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.hero-nickname {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--color-gold);
+  margin-top: -0.5rem;
+  letter-spacing: 0.05em;
+}
+
+/* Datas */
+.hero-dates {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xs);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.date-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.date-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--color-text-secondary);
+}
+
+.date-separator {
+  font-size: 0.5rem;
+  color: var(--color-gold);
+  opacity: 0.7;
+}
+
+/* Epitáfio */
+.hero-epitaph {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-md);
+  border-left: 2px solid var(--color-gold);
+  background: linear-gradient(135deg, rgba(201,169,110,0.04), transparent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  position: relative;
+  text-align: left;
+  max-width: 100%;
+}
+
+.epitaph-quote-mark {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--color-gold);
+  opacity: 0.4;
+  line-height: 0;
+  vertical-align: -0.4em;
+  font-weight: 300;
+}
+
+.epitaph-quote-close {
+  vertical-align: -0.6em;
+}
+
+#hero-epitaph-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--color-text-primary);
+  line-height: 1.8;
+}
+
+
+/* ── 7. DIVISORES DECORATIVOS ───────────────────────────────── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.divider-line.short {
+  max-width: 40px;
+}
+
+.divider-diamond {
+  font-size: 0.5rem;
+  color: var(--color-gold);
+  opacity: 0.6;
+}
+
+.divider-diamond.small {
+  font-size: 0.35rem;
+}
+
+
+/* ── 8. SEÇÃO HEADERS ───────────────────────────────────────── */
+.section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.section-tag {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+}
+
+
+/* ── 9. SEÇÃO BIOGRAFIA ─────────────────────────────────────── */
+.bio-section {
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  margin: 0 var(--spacing-sm);
+  box-shadow: var(--shadow-soft);
+}
+
+.bio-text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: var(--color-text-secondary);
+  line-height: 1.9;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.bio-text p + p {
+  margin-top: var(--spacing-sm);
+}
+
+
+/* ── 10. GALERIA ────────────────────────────────────────────── */
+.gallery-section {
+  padding: var(--spacing-lg) var(--spacing-sm);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--color-surface);
+  list-style: none;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.3s ease;
+}
+
+.gallery-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(44, 44, 44, 0);
+  transition: background var(--transition-normal);
+  pointer-events: none;
+}
+
+.gallery-item:active::after,
+.gallery-item:focus::after {
+  background: rgba(44, 44, 44, 0.12);
+}
+
+.gallery-item:active img {
+  transform: scale(1.03);
+}
+
+.gallery-item:focus {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+
+/* ── 11. SEÇÃO MÍDIA ────────────────────────────────────────── */
+.media-section {
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  margin: 0 var(--spacing-sm);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.media-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xs);
+  text-align: center;
+}
+
+/* Video */
+.video-wrapper {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  background: #1a1a1a;
+}
+
+.video-wrapper video {
+  width: 100%;
+  max-height: 260px;
+  display: block;
+}
+
+/* Audio */
+.audio-wrapper {
+  width: 100%;
+}
+
+.audio-wrapper audio {
+  width: 100%;
+  border-radius: var(--radius-full);
+  height: 44px;
+  accent-color: var(--color-gold);
+}
+
+/* Botões de Música */
+.music-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.music-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+  min-height: 52px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.music-btn:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+.music-btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.spotify-btn {
+  background: #1DB954;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(29, 185, 84, 0.30);
+}
+
+.spotify-btn:active {
+  box-shadow: 0 2px 8px rgba(29, 185, 84, 0.20);
+}
+
+.youtube-btn {
+  background: #FF0000;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.25);
+}
+
+.youtube-btn:active {
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.15);
+}
+
+
+/* ── 12. FOOTER ─────────────────────────────────────────────── */
+.memorial-footer {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-align: center;
+}
+
+.footer-ornament {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+  width: 100%;
+  max-width: 200px;
+}
+
+.footer-logo-link {
+  display: inline-block;
+  transition: opacity var(--transition-fast);
+}
+
+.footer-logo-link:active {
+  opacity: 0.7;
+}
+
+.footer-logo {
+  width: 120px;
+  height: auto;
+  opacity: 0.55;
+  transition: opacity var(--transition-fast);
+  filter: grayscale(20%);
+}
+
+.footer-logo-link:hover .footer-logo,
+.footer-logo-link:focus .footer-logo {
+  opacity: 0.75;
+}
+
+.footer-brand-text {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.footer-tagline {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+}
+
+.footer-tagline strong {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+
+/* ── 13. LIGHTBOX / MODAL ───────────────────────────────────── */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.96);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  animation: lightbox-in 0.3s ease;
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: rgba(255,255,255,0.6);
+  font-size: 1.4rem;
+  padding: 0.5rem;
+  line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lightbox-close:active,
+.lightbox-close:focus {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+}
+
+.lightbox-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 440px;
+  gap: var(--spacing-xs);
+  position: relative;
+}
+
+.lightbox-img {
+  max-width: calc(100% - 80px);
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  animation: img-fadein 0.4s ease;
+}
+
+@keyframes img-fadein {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+.lightbox-nav {
+  color: rgba(255,255,255,0.5);
+  font-size: 2rem;
+  padding: 0.5rem 0.75rem;
+  min-width: 44px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lightbox-nav:active,
+.lightbox-nav:focus {
+  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.08);
+  outline: none;
+}
+
+.lightbox-caption {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.5);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-align: center;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ── 14. UTILITÁRIOS & ACESSIBILIDADE ──────────────────────── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Foco visível para teclado */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+/* Suporte a motion-reduce */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── 15. RESPONSIVIDADE ─────────────────────────────────────── */
+@media (max-width: 380px) {
+  .hero-name { font-size: 1.7rem; }
+  .profile-frame { width: 140px; height: 140px; }
+  .profile-photo { width: 140px; height: 140px; }
+}
+
+@media (min-width: 600px) {
+  /* Tablet — ainda mobile-first mas um pouco mais espaçado */
+  body { background: var(--color-surface); }
+  .memorial-page {
+    background: var(--color-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-medium);
+    margin: var(--spacing-lg) auto;
+  }
+}
